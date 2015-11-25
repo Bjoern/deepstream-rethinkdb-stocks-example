@@ -5,7 +5,7 @@ class Agent {
   constructor(buyRule, sellRule) {
     // rule = "ud"
     this.buyRule = buyRule;
-    this.sellRule;
+    this.sellRule = sellRule;
   }
 
   money = 0;
@@ -25,6 +25,32 @@ class Agent {
       this.stocks += -1;
     }
   }
+}
+
+//create all agents
+var ruleLength = 2;
+
+var agents = [];
+
+function makeAgents(rule){
+	console.log("makeAgents "+rule);
+	if(rule.length == ruleLength*2){
+		var buyRule = rule.substring(0,ruleLength);
+		var sellRule = rule.substring(ruleLength,rule.length);
+		console.log("buy: "+buyRule+", sell: "+sellRule);
+		var agent = new Agent(buyRule, sellRule);
+		agents.push(agent);
+
+	} else {
+		makeAgents(rule+"0");
+		makeAgents(rule+"1");
+	}
+}
+
+makeAgents("");
+
+for(var i = 0; i < 2* ruleLength; i++){
+	
 }
 
 export default class MyComponent extends React.Component {

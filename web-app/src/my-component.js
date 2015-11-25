@@ -30,7 +30,7 @@ class Agent {
 //create all agents
 var ruleLength = 2;
 
-var agents = [];
+var globalagents = [];
 
 function makeAgents(rule){
 	console.log("makeAgents "+rule);
@@ -39,18 +39,18 @@ function makeAgents(rule){
 		var sellRule = rule.substring(ruleLength,rule.length);
 		console.log("buy: "+buyRule+", sell: "+sellRule);
 		var agent = new Agent(buyRule, sellRule);
-		agents.push(agent);
+		globalagents.push(agent);
 
 	} else {
-		makeAgents(rule+"0");
-		makeAgents(rule+"1");
+		makeAgents(rule+"u");
+		makeAgents(rule+"d");
 	}
 }
 
 makeAgents("");
 
 for(var i = 0; i < 2* ruleLength; i++){
-	
+
 }
 
 export default class MyComponent extends React.Component {
@@ -64,7 +64,7 @@ export default class MyComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      prices: [], movements: "", agents: []
+      prices: [], movements: "", agents: globalagents
     }
   }
 
@@ -73,8 +73,9 @@ export default class MyComponent extends React.Component {
   }
 
   onConnected = () => {
-    const amzn = this.ds.record.getRecord( 'sp500/GOOG' );
+    const amzn = this.ds.record.getRecord( 'sp500/AAPL' );
     amzn.subscribe( 'last_price', lastPrice => {
+      lastPrice = parseFloat(lastPrice);
       const {prices, agents} = this.state;
       prices.push(lastPrice);
       let tmpPrice = null;
@@ -87,8 +88,8 @@ export default class MyComponent extends React.Component {
       });
       if (history.length === 2) {
         agents.forEach(a => {
-          a.buyRule(history, lastPrice);
-          a.sellRule(history, lastPrice);
+          a.buy(history, lastPrice);
+          a.sell(history, lastPrice);
         });
       }
       this.setState({prices, movements: history, agents});
@@ -96,19 +97,21 @@ export default class MyComponent extends React.Component {
   }
 
   render() {
-    const {movements, agents} = this.state;
+    const {movements, agents, prices} = this.state;
 
     return (
       <div>
+        <div>Prices: {prices.map(p => <span>{p}, </span>)}</div>
         <div>Movements: {movements}</div>
         <h2>Agents</h2>
         <div>
-          {agents.sort((a,b) => a.money - b.money).map(a => (
+          {agents.sort((a,b) => (b.stocks * prices[prices.length-1] + b.money) - (a.stocks * prices[prices.length-1] + a.money)).map(a => (
             <div>
               <span><b>buy: </b>{a.buyRule}</span>
-              <span> <b>sell: </b>{a.sell}</span>
+              <span> <b>sell: </b>{a.sellRule}</span>
               <span> <b>stocks: </b>{a.stocks}</span>
-              <span> <b>MONEY: </b>{a.money}</span>
+              <span> <b>money: </b>{a.money.toFixed(2)}</span>
+              <span> <b>PROFIT: </b>{(a.stocks * prices[prices.length-1] + a.money).toFixed(2)}</span>
             </div>
           ))}
         </div>

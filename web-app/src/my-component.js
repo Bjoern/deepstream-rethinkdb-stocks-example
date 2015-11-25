@@ -9,7 +9,7 @@ export default class MyComponent extends React.Component {
 
   // static defaultProps = {initialCount: 0}
 
-  state = {price: -1}
+  state = {prices: []}
 
   componentDidMount() {
     this.ds = deepstream('52.29.184.11:6020').login({}, this.onConnected );
@@ -17,17 +17,17 @@ export default class MyComponent extends React.Component {
 
   onConnected = () => {
     const amzn = this.ds.record.getRecord( 'sp500/GOOG' );
-    amzn.subscribe( 'last_price', lastPrice => this.setState({price: lastPrice}));
-  }
-
-  handleClick() {
-    // this.setState({count: this.state.count + 1});
+    amzn.subscribe( 'last_price', lastPrice => {
+      const {prices} = this.state;
+      prices.push(lastPrice);
+      this.setState({prices});
+    });
   }
 
   render() {
     return (
       <div>
-        <div>Price: {this.state.price}</div>
+        <div>Price: {this.state.prices.map(price => <span><b>{price}</b>,</span>)}</div>
       </div>
     );
   }

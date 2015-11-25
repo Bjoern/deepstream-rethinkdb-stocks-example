@@ -77,7 +77,7 @@ export default class MyComponent extends React.Component {
         <div>Movements: {movements}</div>
         <h2>Agents</h2>
         <div>
-          {agents.map(a => (
+          {agents.sort((a,b) => a.money - b.money).map(a => (
             <div>
               <span><b>buy: </b>{a.buyRule}</span>
               <span> <b>sell: </b>{a.sell}</span>

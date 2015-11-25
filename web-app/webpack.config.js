@@ -9,9 +9,6 @@ module.exports = {
     filename: "bundle.js"
   },
   module: {
-    preLoaders: [
-      {test: /\.jsx?$/, loader: "eslint", include: srcPath}
-    ],
     loaders: [
       {test: /\.jsx?$/, loader: "babel", include: srcPath},
       {test: /\.css$/, loader: "style!css!postcss"},

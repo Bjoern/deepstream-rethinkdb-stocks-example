@@ -25,7 +25,6 @@ class Agent {
       this.stocks += -1;
     }
   }
-
 }
 
 export default class MyComponent extends React.Component {
@@ -36,25 +35,58 @@ export default class MyComponent extends React.Component {
 
   // static defaultProps = {initialCount: 0}
 
-  state = {prices: []}
+  constructor(props) {
+    super(props);
+    this.state = {
+      prices: [], movements: "", agents: []
+    }
+  }
 
   componentDidMount() {
-    this.ds = deepstream('52.29.184.11:6020').login({}, this.onConnected );
+    this.ds = deepstream('52.29.184.11:6020').login({}, this.onConnected);
   }
 
   onConnected = () => {
     const amzn = this.ds.record.getRecord( 'sp500/GOOG' );
     amzn.subscribe( 'last_price', lastPrice => {
-      const {prices} = this.state;
+      const {prices, agents} = this.state;
       prices.push(lastPrice);
-      this.setState({prices});
+      let tmpPrice = null;
+      let history = "";
+      prices.slice(-3).forEach(p => {
+        if (tmpPrice) {
+          history += tmpPrice > p ? "d" : "u";
+        }
+        tmpPrice = p;
+      });
+      if (history.length === 2) {
+        agents.forEach(a => {
+          a.buyRule(history, lastPrice);
+          a.sellRule(history, lastPrice);
+        });
+      }
+      this.setState({prices, movements: history, agents});
     });
   }
 
   render() {
+    const {movements, agents} = this.state;
+
     return (
       <div>
-        <div>Price: {this.state.prices.map(price => <span><b>{price}</b>,</span>)}</div>
+        <div>Movements: {movements}</div>
+        <h2>Agents</h2>
+        <div>
+          {agents.map(a => (
+            <div>
+              <span><b>buy: </b>{a.buyRule}</span>
+              <span> <b>sell: </b>{a.sell}</span>
+              <span> <b>stocks: </b>{a.stocks}</span>
+              <span> <b>MONEY: </b>{a.money}</span>
+            </div>
+          ))}
+        </div>
+
       </div>
     );
   }

@@ -1,6 +1,33 @@
 import React from 'react';
 import deepstream from 'deepstream.io-client-js';
 
+class Agent {
+  constructor(buyRule, sellRule) {
+    // rule = "ud"
+    this.buyRule = buyRule;
+    this.sellRule;
+  }
+
+  money = 0;
+  stocks = 0;
+
+  buy(history, price) {
+    // history = "du"
+    if (history === this.buyRule) {
+      this.money -= price;
+      this.stocks += 1;
+    }
+  }
+
+  sell(history, price) {
+   if (this.stocks > 0 && history === this.sellRule) {
+      this.money += price;
+      this.stocks += -1;
+    }
+  }
+
+}
+
 export default class MyComponent extends React.Component {
 
   static propTypes = {
